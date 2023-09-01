@@ -69,7 +69,7 @@ function App() {
         if(newWinner) {
             setWinner(newWinner)
         }else {
-            setWinner(newBoard.every(x => x !== null) ? 'draw' : false)
+            setWinner(newBoard.every(x => x !== null) ? false : null)
         }
     }
 
@@ -101,6 +101,29 @@ function App() {
                 <Square isSelected={turn === TURNS.X}>tu turno</Square>
                 <Square isSelected={turn === TURNS.O}>tu turno</Square>
             </section>
+                
+            {
+                winner !== null && (
+                    <section>
+                        <div>
+                            <h2>
+                                {
+                                    winner === false 
+                                        ? 'Empate'
+                                        : 'Victoria'   
+                                }
+                            </h2>
+                        </div>
+                        <header>
+                            { winner && <Square>{winner}</Square> }
+                        </header>
+                        <footer>
+                            <button>Nueva partida</button>
+                            <button>Reiniciar progreso</button>
+                        </footer>
+                    </section>
+                )
+            }
         </main>
     )
 }
