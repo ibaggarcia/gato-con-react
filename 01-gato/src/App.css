@@ -83,10 +83,55 @@ body {
 }
 
 .title-result {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5em;
   font-size: 25px;
+  text-align: center
+}
+
+.title-result h2, h3 {
+  margin: 0;
 }
 
 .winner-icon div {
-  font-size: 50px;
-  padding: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+  padding-bottom: 30px;
+  width: 1.5em;
+  height: 1.5em;
+  border-color: #a6a809;
+  color: #a6a809;
 }
+
+.modal-options {
+  display: grid;
+  justify-items: center;
+  grid-template-columns: 1fr 1fr;
+}
+
+.modal-options button {
+  margin-bottom: 15px;
+  padding: 0.7em;
+  font-size: 0.9em;
+  font-weight: bold;
+  background-color: #000;
+  border-radius: 25px;
+}
+
+.modal-options button:hover {
+  background-color: #c4bebe11;
+}
+
+.new-game {
+  color: #3bb91ba2;
+  border: 1px solid #3bb91ba2;
+}
+
+.restart-progress {
+  color: #9e2222cb;
+  border: 1px solid #9e2222cb;
+}
+
