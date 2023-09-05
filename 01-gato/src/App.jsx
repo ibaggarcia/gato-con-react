@@ -12,7 +12,9 @@ const Square = ({children, isSelected, updateBoard, index}) => {
     
     const className = `square ${isSelected ? 'is-selected' : 'is-not-selected'}`
 
-    const handleClick = () => updateBoard(index)
+    const handleClick = () => {
+        if(index != null) updateBoard(index)
+    }
 
     return(
         <div onClick={handleClick} className={className}>
@@ -31,6 +33,11 @@ const WINNER_COMBOS = [
     [0, 4, 8],
     [2, 4, 6]
 ]
+
+const SCORE = {
+    X: 0,
+    O: 0
+}
 
 function App() {
     const [board, setBoard] = useState(Array(9).fill(null))
@@ -68,9 +75,24 @@ function App() {
         const newWinner = checkWinner(newBoard)
         if(newWinner) {
             setWinner(newWinner)
+            newWinner == 'x' ? SCORE.X++ : SCORE.O++
         }else {
             setWinner(newBoard.every(x => x !== null) ? false : null)
-        }
+        }        
+    }
+
+    const newGame = () => {
+        setWinner(null)
+        setBoard(board.fill(null))
+        setTurn(TURNS.X)
+    }
+
+    const restartProgress = () => {
+        setWinner(null)
+        setBoard(board.fill(null))
+        setTurn(TURNS.X)
+        SCORE.X = 0
+        SCORE.O = 0
     }
 
     return(
@@ -110,16 +132,17 @@ function App() {
                                 {
                                     winner === false 
                                         ? 'Empate'
-                                        : 'Victoria'   
+                                        : 'Victoria!'   
                                 }
                             </h2>
+                            <h3>{ `${SCORE.X} - ${SCORE.O}` }</h3>
                         </div>
                         <header className='winner-icon'>
-                            { winner && <Square>{winner}</Square> }
+                            <Square>{ winner === false ? '=' : winner }</Square>
                         </header>
                         <footer className='modal-options'>
-                            <button className='new-game'>Nueva partida</button>
-                            <button className='restart-progress'>Reiniciar progreso</button>
+                            <button onClick={newGame} className='new-game'>Nueva partida</button>
+                            <button onClick={restartProgress} className='restart-progress'>Reiniciar progreso</button>
                         </footer>
                     </section>
                 )
