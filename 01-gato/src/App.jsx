@@ -1,65 +1,34 @@
 import './App.css'
 import { useState } from 'react'
+import confetti from 'canvas-confetti'
 
-const TURNS = {
-    X: 'x',
-    O: 'o'
-}
-
-
-
-const Square = ({children, isSelected, updateBoard, index}) => {
-    
-    const className = `square ${isSelected ? 'is-selected' : 'is-not-selected'}`
-
-    const handleClick = () => {
-        if(index != null) updateBoard(index)
-    }
-
-    return(
-        <div onClick={handleClick} className={className}>
-            {children}
-        </div>
-    )
-}
-
-const WINNER_COMBOS = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]
-]
-
-const SCORE = {
-    X: 0,
-    O: 0
-}
+import { Square } from './components/Square.jsx'
+import { WinnerModal } from './components/WinnerModal.jsx'
+import { TURNS, SCORE } from './constants.js'
+import { checkWinner } from './logic/board.js'
+import { saveGameLocalStorage, newGameLocalStorage, restartProgressLocalStorage, isItWinnerLocalStorage, scoreLocalStorage } from './storage/index.js'
 
 function App() {
-    const [board, setBoard] = useState(Array(9).fill(null))
-    const [turn, setTurn] = useState(TURNS.X)
-    const [winner, setWinner] = useState(null)
+    const [board, setBoard] = useState( () => {
+        const boardLocalStorage = window.localStorage.getItem('board')
+        return boardLocalStorage ? JSON.parse(boardLocalStorage) : Array(9).fill(null)
+    })
+    
+    const [turn, setTurn] = useState( () => {
+        const turnLocalStorage = window.localStorage.getItem('turn')
+        return turnLocalStorage ?? TURNS.X
+    })
+    
+    const [winner, setWinner] = useState( () => {
+        const winnerLocalStorage = window.localStorage.getItem('isItWinner')
+        return winnerLocalStorage === "false" ? false : JSON.parse(winnerLocalStorage)
+    })
 
-    const checkWinner = (boardToCheck) => {
+    const [score, setScore] = useState( () => {
+        const scoreLocalStorage = window.localStorage.getItem('score')
+        return scoreLocalStorage ? JSON.parse(scoreLocalStorage) : SCORE
+    })
 
-        for (const combo of WINNER_COMBOS) {
-            const [a, b, c] = combo
-            
-            if(
-                boardToCheck[a] &&
-                boardToCheck[a] === boardToCheck[b] &&
-                boardToCheck[b] === boardToCheck[c]    
-            ) {
-                return boardToCheck[a]
-            }
-        }
-        
-        return null
-    }
 
     const updateBoard = (index) => {
 
@@ -70,34 +39,52 @@ function App() {
         newBoard[index] = newBoard[index] ? newBoard[index] : turn
         setBoard(newBoard)
 
-        setTurn(turn === TURNS.X ? TURNS.O : TURNS.X)
+        const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X
+        setTurn(newTurn)
 
+        saveGameLocalStorage({
+            newTurn: newTurn,
+            newBoard: newBoard
+        })
+
+        const newScore = score
         const newWinner = checkWinner(newBoard)
+
         if(newWinner) {
             setWinner(newWinner)
-            newWinner == 'x' ? SCORE.X++ : SCORE.O++
+            isItWinnerLocalStorage({ newWinner: newWinner})
+            confetti({
+                particleCount: 100,
+                spread: 100,
+                origin: { y: 0.6 }
+              });
+            newWinner == TURNS.X ? newScore.X++ : newScore.O++
+            setScore(newScore)
+            scoreLocalStorage({ newScore: newScore })
         }else {
-            setWinner(newBoard.every(x => x !== null) ? false : null)
+            setWinner(newWinner)
+            isItWinnerLocalStorage({ newWinner: newWinner})
         }        
     }
 
     const newGame = () => {
         setWinner(null)
-        setBoard(board.fill(null))
+        setBoard(Array(9).fill(null))
         setTurn(TURNS.X)
+        newGameLocalStorage()
     }
 
     const restartProgress = () => {
-        setWinner(null)
-        setBoard(board.fill(null))
-        setTurn(TURNS.X)
-        SCORE.X = 0
-        SCORE.O = 0
+        score.X = 0
+        score.O = 0
+        restartProgressLocalStorage({ score: score})
+        newGame()
     }
 
     return(
         <main className='board'>
             <h1 className='title-name'>Juego del gato</h1>
+            <h2 className='score'>{`${score.X} - ${score.O}`}</h2>
             <section className='game'>
                 {
                     board.map((_ ,index) => {
@@ -123,30 +110,12 @@ function App() {
                 <Square isSelected={turn === TURNS.X}>tu turno</Square>
                 <Square isSelected={turn === TURNS.O}>tu turno</Square>
             </section>
-                
-            {
-                winner !== null && (
-                    <section className='modal-win'>
-                        <div className='title-result'>
-                            <h2>
-                                {
-                                    winner === false 
-                                        ? 'Empate'
-                                        : 'Victoria!'   
-                                }
-                            </h2>
-                            <h3>{ `${SCORE.X} - ${SCORE.O}` }</h3>
-                        </div>
-                        <header className='winner-icon'>
-                            <Square>{ winner === false ? '=' : winner }</Square>
-                        </header>
-                        <footer className='modal-options'>
-                            <button onClick={newGame} className='new-game'>Nueva partida</button>
-                            <button onClick={restartProgress} className='restart-progress'>Reiniciar progreso</button>
-                        </footer>
-                    </section>
-                )
-            }
+            <WinnerModal 
+                winner={winner}
+                SCORE={score}
+                newGame={newGame}
+                restartProgress={restartProgress}
+            /> 
         </main>
     )
 }
