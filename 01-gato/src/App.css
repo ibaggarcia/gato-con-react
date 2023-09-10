@@ -19,7 +19,12 @@ body {
 
 .title-name {
   font-size: 50px;
-  margin-bottom: 100px;
+  margin: .2em;
+}
+
+.score {
+  margin: .2em;
+  font-size: 2em;
 }
 
 .square {
