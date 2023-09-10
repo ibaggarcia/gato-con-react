@@ -83,7 +83,7 @@ function App() {
 
     return(
         <main className='board'>
-            <h1 className='title-name'>Juego del gato</h1>
+            <h1 className='title-name'>Juego del gato con React</h1>
             <h2 className='score'>{`${score.X} - ${score.O}`}</h2>
             <section className='game'>
                 {

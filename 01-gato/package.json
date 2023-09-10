@@ -9,6 +9,9 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
+  "repository": {
+    "url": "git+https://github.com/ibaggarcia/gato-con-react.git"
+  },
   "dependencies": {
     "canvas-confetti": "1.6.0",
     "react": "^18.2.0",
